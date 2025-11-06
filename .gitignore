@@ -1,0 +1,8 @@
+# Ignorar config con credenciales reales
+config.php
+
+# Dependencias y entorno
+/vendor
+/.env
+/.idea
+*.log

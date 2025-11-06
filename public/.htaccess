@@ -1,0 +1,4 @@
+# Si usas Apache, redirige todas las peticiones a index.php para un enrutado sencillo
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^ index.php [QSA,L]
