@@ -6,3 +6,4 @@ config.php
 /.env
 /.idea
 *.log
+config.php
