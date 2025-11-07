@@ -18,4 +18,10 @@ class Payment {
         $stmt->execute([':y'=>$year]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+    public static function createMembership(Database $db, $user_id, $year, $amount) {
+        $pdo = $db->pdo();
+        // ON DUPLICATE KEY UPDATE: only update amount, keep paid status unchanged
+        $stmt = $pdo->prepare("INSERT INTO memberships (user_id, year, amount, paid) VALUES (:u, :y, :amt, 0) ON DUPLICATE KEY UPDATE amount=VALUES(amount)");
+        $stmt->execute([':u'=>$user_id, ':y'=>$year, ':amt'=>$amount]);
+    }
 }

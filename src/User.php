@@ -14,4 +14,20 @@ class User {
         $stmt = $db->pdo()->prepare("DELETE FROM users WHERE id = :id");
         $stmt->execute([':id'=>$id]);
     }
+    public static function get(Database $db, $id) {
+        $stmt = $db->pdo()->prepare("SELECT id, email, name, role, active FROM users WHERE id = :id LIMIT 1");
+        $stmt->execute([':id'=>$id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    public static function update(Database $db, $id, $email, $name, $role, $password = null) {
+        $pdo = $db->pdo();
+        if ($password) {
+            $pwd = password_hash($password, PASSWORD_DEFAULT);
+            $stmt = $pdo->prepare("UPDATE users SET email=:e, name=:n, role=:r, password=:p WHERE id=:id");
+            $stmt->execute([':e'=>$email, ':n'=>$name, ':r'=>$role, ':p'=>$pwd, ':id'=>$id]);
+        } else {
+            $stmt = $pdo->prepare("UPDATE users SET email=:e, name=:n, role=:r WHERE id=:id");
+            $stmt->execute([':e'=>$email, ':n'=>$name, ':r'=>$role, ':id'=>$id]);
+        }
+    }
 }

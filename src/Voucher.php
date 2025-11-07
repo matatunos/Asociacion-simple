@@ -20,4 +20,8 @@ class Voucher {
         }
         return $out;
     }
+    public static function markAsUsed(Database $db, $id) {
+        $stmt = $db->pdo()->prepare("UPDATE vouchers SET used=1 WHERE id = :id");
+        $stmt->execute([':id'=>$id]);
+    }
 }

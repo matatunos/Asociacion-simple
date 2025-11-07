@@ -20,7 +20,7 @@ ob_start();
 
 <h3>Lista de vales</h3>
 <table>
-<tr><th>ID</th><th>Código</th><th>Usuario</th><th>Evento</th><th>Usado</th><th>Acción</th></tr>
+<tr><th>ID</th><th>Código</th><th>Usuario</th><th>Evento</th><th>Usado</th><th>Acciones</th></tr>
 <?php foreach($vouchers as $v): ?>
   <tr>
     <td><?= $v['id'] ?></td>
@@ -39,6 +39,13 @@ ob_start();
         ]);
       ?>
       <a href="#" onclick="alert(<?=json_encode($rendered)?>); return false;">Vista</a>
+      <?php if(!$v['used']): ?>
+        <form method="post" style="display:inline">
+          <input type="hidden" name="action" value="mark_used">
+          <input type="hidden" name="id" value="<?= $v['id'] ?>">
+          <button type="submit">Marcar usado</button>
+        </form>
+      <?php endif; ?>
     </td>
   </tr>
 <?php endforeach; ?>
