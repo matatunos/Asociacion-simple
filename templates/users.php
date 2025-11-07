@@ -4,6 +4,10 @@ ob_start();
 ?>
 <h2>Usuarios</h2>
 
+<?php if(!empty($error)): ?>
+  <p class="error"><?= htmlspecialchars($error) ?></p>
+<?php endif; ?>
+
 <?php if(isset($editUser) && $editUser): ?>
 <h3>Editar usuario</h3>
 <form method="post" action="index.php?page=users">
