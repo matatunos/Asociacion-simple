@@ -2,7 +2,16 @@
 $title = "Pagos y Cuotas";
 ob_start();
 ?>
-<h2>Pagos</h2>
+<h2>Pagos y Cuotas</h2>
+
+<h3>Crear cuota anual</h3>
+<form method="post" action="index.php?page=payments">
+  <input type="hidden" name="action" value="create_membership">
+  <label>ID Usuario: <input type="number" name="user_id" required></label><br/>
+  <label>Año: <input type="number" name="year" value="<?= date('Y') ?>" required></label><br/>
+  <label>Importe: <input type="number" step="0.01" name="amount" required></label><br/>
+  <button type="submit">Crear cuota</button>
+</form>
 
 <h3>Registrar pago</h3>
 <form method="post" action="index.php?page=payments">

@@ -57,6 +57,11 @@ switch ($page) {
             User::delete($db, (int)$_POST['id']);
             header('Location: index.php?page=users'); exit;
         }
+        if ($action === 'update' && !empty($_POST['id'])) {
+            User::update($db, (int)$_POST['id'], $_POST['email'], $_POST['name'], $_POST['role'], $_POST['password'] ?: null);
+            header('Location: index.php?page=users'); exit;
+        }
+        $editUser = isset($_GET['edit']) ? User::get($db, (int)$_GET['edit']) : null;
         $users = User::all($db);
         require __DIR__ . '/../templates/users.php';
         break;
@@ -68,6 +73,13 @@ switch ($page) {
             $amount = (float)$_POST['amount'];
             $method = $_POST['method'] ?? 'efectivo';
             Payment::record($db, $uid, null, $amount, $method, $_POST['notes'] ?? null);
+            header('Location: index.php?page=payments'); exit;
+        }
+        if ($action === 'create_membership') {
+            $uid = (int)$_POST['user_id'];
+            $year = (int)$_POST['year'];
+            $amount = (float)$_POST['amount'];
+            Payment::createMembership($db, $uid, $year, $amount);
             header('Location: index.php?page=payments'); exit;
         }
         $payments = Payment::all($db);
