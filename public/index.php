@@ -79,7 +79,12 @@ switch ($page) {
                     User::create($db, $_POST['email'], $_POST['name'], $_POST['password'] ?? null, $_POST['role'] ?? 'member');
                     header('Location: index.php?page=users'); exit;
                 } catch (PDOException $e) {
-                    $error = "Error al crear usuario: " . (strpos($e->getMessage(), 'Duplicate') !== false ? "El email ya existe." : "Error de base de datos.");
+                    if (strpos($e->getMessage(), 'Duplicate') !== false) {
+                        $error = "El email ya existe.";
+                    } else {
+                        error_log("Error creating user: " . $e->getMessage());
+                        $error = "Error al crear usuario. Por favor, inténtelo de nuevo.";
+                    }
                 }
             }
         }
@@ -97,7 +102,12 @@ switch ($page) {
                     User::update($db, (int)$_POST['id'], $_POST['email'], $_POST['name'], $_POST['role'], $_POST['password'] ?: null);
                     header('Location: index.php?page=users'); exit;
                 } catch (PDOException $e) {
-                    $error = "Error al actualizar usuario: " . (strpos($e->getMessage(), 'Duplicate') !== false ? "El email ya existe." : "Error de base de datos.");
+                    if (strpos($e->getMessage(), 'Duplicate') !== false) {
+                        $error = "El email ya existe.";
+                    } else {
+                        error_log("Error updating user: " . $e->getMessage());
+                        $error = "Error al actualizar usuario. Por favor, inténtelo de nuevo.";
+                    }
                 }
             }
         }
@@ -119,8 +129,30 @@ switch ($page) {
             $uid = (int)$_POST['user_id'];
             $year = (int)$_POST['year'];
             $amount = (float)$_POST['amount'];
-            Payment::createMembership($db, $uid, $year, $amount);
-            header('Location: index.php?page=payments'); exit;
+            
+            // Validate input
+            if ($uid <= 0) {
+                $error = "ID de usuario inválido.";
+            } elseif ($year < 2000 || $year > 2100) {
+                $error = "Año inválido.";
+            } elseif ($amount <= 0) {
+                $error = "El importe debe ser mayor que 0.";
+            } else {
+                // Verify user exists
+                $stmt = $db->pdo()->prepare("SELECT id FROM users WHERE id = :id LIMIT 1");
+                $stmt->execute([':id' => $uid]);
+                if (!$stmt->fetch()) {
+                    $error = "El usuario no existe.";
+                } else {
+                    try {
+                        Payment::createMembership($db, $uid, $year, $amount);
+                        header('Location: index.php?page=payments'); exit;
+                    } catch (PDOException $e) {
+                        error_log("Error creating membership: " . $e->getMessage());
+                        $error = "Error al crear la cuota. Por favor, inténtelo de nuevo.";
+                    }
+                }
+            }
         }
         $payments = Payment::all($db);
         $memberships = Payment::membershipsForYear($db, date('Y'));

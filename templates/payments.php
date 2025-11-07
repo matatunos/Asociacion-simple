@@ -4,6 +4,10 @@ ob_start();
 ?>
 <h2>Pagos y Cuotas</h2>
 
+<?php if(!empty($error)): ?>
+  <p class="error"><?= htmlspecialchars($error) ?></p>
+<?php endif; ?>
+
 <h3>Crear cuota anual</h3>
 <form method="post" action="index.php?page=payments">
   <input type="hidden" name="action" value="create_membership">
