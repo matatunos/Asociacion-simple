@@ -11,6 +11,7 @@ require_once __DIR__ . '/../src/Auth.php';
 require_once __DIR__ . '/../src/User.php';
 require_once __DIR__ . '/../src/Payment.php';
 require_once __DIR__ . '/../src/Voucher.php';
+require_once __DIR__ . '/../src/Member.php';
 
 $config = require __DIR__ . '/../config.php';
 $db = new Database($config['db']);
@@ -171,6 +172,56 @@ switch ($page) {
         }
         $vouchers = Voucher::all($db);
         require __DIR__ . '/../templates/vouchers.php';
+        break;
+
+    case 'agenda':
+        // Solo accesible para admin
+        if ($user['role'] !== 'admin') { 
+            http_response_code(403); 
+            echo "Acceso denegado."; 
+            exit; 
+        }
+        
+        // Acciones CRUD para socios
+        if ($action === 'create' && !empty($_POST['name'])) {
+            if (strlen($_POST['name']) < 2) {
+                $error = "El nombre debe tener al menos 2 caracteres.";
+            } else {
+                try {
+                    Member::create($db, $_POST);
+                    header('Location: index.php?page=agenda'); 
+                    exit;
+                } catch (PDOException $e) {
+                    error_log("Error creating member: " . $e->getMessage());
+                    $error = "Error al crear socio. Por favor, inténtelo de nuevo.";
+                }
+            }
+        }
+        
+        if ($action === 'update' && !empty($_POST['id'])) {
+            if (strlen($_POST['name']) < 2) {
+                $error = "El nombre debe tener al menos 2 caracteres.";
+            } else {
+                try {
+                    Member::update($db, (int)$_POST['id'], $_POST);
+                    header('Location: index.php?page=agenda'); 
+                    exit;
+                } catch (PDOException $e) {
+                    error_log("Error updating member: " . $e->getMessage());
+                    $error = "Error al actualizar socio. Por favor, inténtelo de nuevo.";
+                }
+            }
+        }
+        
+        if ($action === 'delete' && !empty($_POST['id'])) {
+            Member::delete($db, (int)$_POST['id']);
+            header('Location: index.php?page=agenda'); 
+            exit;
+        }
+        
+        $editMember = isset($_GET['edit']) ? Member::find($db, (int)$_GET['edit']) : null;
+        $members = Member::all($db);
+        require __DIR__ . '/../templates/agenda.php';
         break;
 
     default:
