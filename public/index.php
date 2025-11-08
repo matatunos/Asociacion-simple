@@ -11,6 +11,7 @@ require_once __DIR__ . '/../src/Auth.php';
 require_once __DIR__ . '/../src/User.php';
 require_once __DIR__ . '/../src/Payment.php';
 require_once __DIR__ . '/../src/Voucher.php';
+require_once __DIR__ . '/../src/Member.php';
 
 $config = require __DIR__ . '/../config.php';
 $db = new Database($config['db']);
@@ -171,6 +172,43 @@ switch ($page) {
         }
         $vouchers = Voucher::all($db);
         require __DIR__ . '/../templates/vouchers.php';
+        break;
+
+    case 'agenda':
+        // Gestión de agenda de socios - solo admin
+        if ($user['role'] !== 'admin') { 
+            http_response_code(403); 
+            echo "Acceso denegado."; 
+            exit; 
+        }
+        
+        // Crear socio
+        if ($action === 'create' && !empty($_POST['name'])) {
+            Member::create($db, $_POST);
+            header('Location: index.php?page=agenda'); 
+            exit;
+        }
+        
+        // Actualizar socio
+        if ($action === 'update' && !empty($_POST['id'])) {
+            Member::update($db, (int)$_POST['id'], $_POST);
+            header('Location: index.php?page=agenda'); 
+            exit;
+        }
+        
+        // Eliminar socio
+        if ($action === 'delete' && !empty($_POST['id'])) {
+            Member::delete($db, (int)$_POST['id']);
+            header('Location: index.php?page=agenda'); 
+            exit;
+        }
+        
+        // Obtener socio a editar si se solicita
+        $editMember = isset($_GET['edit']) ? Member::find($db, (int)$_GET['edit']) : null;
+        
+        // Listar todos los socios
+        $members = Member::all($db);
+        require __DIR__ . '/../templates/agenda.php';
         break;
 
     default:

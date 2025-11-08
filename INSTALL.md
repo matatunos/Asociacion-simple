@@ -14,10 +14,15 @@
 - Desde navegador, ejecuta `http://TU_BASE_URL/install.php` para crear las tablas y un usuario admin inicial.
   - Usuario admin por defecto: admin@example.org
   - Contraseña por defecto: admin123 (cámbiala inmediatamente desde el panel).
+- Para habilitar la funcionalidad de Agenda, importa también el archivo `sql/members.sql`:
+  ```bash
+  mysql -u usuario -p nombre_base_datos < sql/members.sql
+  ```
 - Borra o protege `install.php` tras la instalación.
 
 3. Archivos importantes
 - `sql/schema.sql` — esquema SQL si prefieres ejecutar manualmente.
+- `sql/members.sql` — tabla para la Agenda de socios (ejecutar después de schema.sql).
 - `templates/` — edita las plantillas HTML para personalizar vales y documentos.
 - `src/` — lógica de la aplicación.
 
