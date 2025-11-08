@@ -5,7 +5,8 @@ class Auth {
     public function __construct(Database $db, array $cfg) {
         $this->db = $db->pdo();
         $this->cfg = $cfg;
-        session_name($cfg['session_name'] ?? 'app_session');
+        // NOTA: session_name debe aplicarse antes de session_start().
+        // La gestión del nombre de sesión se realiza en public/index.php.
     }
     public function login($email, $password) {
         $stmt = $this->db->prepare("SELECT * FROM users WHERE email = :e AND active = 1 LIMIT 1");
