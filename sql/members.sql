@@ -1,6 +1,7 @@
 -- Tabla para almacenar información de socios (Agenda)
 -- Ejecutar después de schema.sql o incluir en install.php
 
+-- Tabla de socios (miembros) para la agenda interna
 CREATE TABLE IF NOT EXISTS members (
   id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(200) NOT NULL,

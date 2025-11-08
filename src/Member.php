@@ -13,6 +13,10 @@ class Member {
             INSERT INTO members (name, email, phone, address, city, postal_code, notes)
             VALUES (:name, :email, :phone, :address, :city, :postal_code, :notes)
         ");
+        $stmt = $pdo->prepare(
+            "INSERT INTO members (name, email, phone, address, city, postal_code, notes) 
+             VALUES (:name, :email, :phone, :address, :city, :postal_code, :notes)"
+        );
         $stmt->execute([
             ':name' => $data['name'] ?? '',
             ':email' => $data['email'] ?? '',
@@ -34,6 +38,11 @@ class Member {
             FROM members
             ORDER BY name ASC
         ");
+        $stmt = $db->pdo()->query(
+            "SELECT id, name, email, phone, address, city, postal_code, notes, created_at, updated_at 
+             FROM members 
+             ORDER BY id DESC"
+        );
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
@@ -47,6 +56,15 @@ class Member {
             WHERE id = :id
             LIMIT 1
         ");
+     * Obtener un socio por ID
+     */
+    public static function find(Database $db, $id) {
+        $stmt = $db->pdo()->prepare(
+            "SELECT id, name, email, phone, address, city, postal_code, notes, created_at, updated_at 
+             FROM members 
+             WHERE id = :id 
+             LIMIT 1"
+        );
         $stmt->execute([':id' => $id]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
@@ -68,6 +86,18 @@ class Member {
                 updated_at = NOW()
             WHERE id = :id
         ");
+        $stmt = $pdo->prepare(
+            "UPDATE members 
+             SET name = :name, 
+                 email = :email, 
+                 phone = :phone, 
+                 address = :address, 
+                 city = :city, 
+                 postal_code = :postal_code, 
+                 notes = :notes,
+                 updated_at = CURRENT_TIMESTAMP
+             WHERE id = :id"
+        );
         $stmt->execute([
             ':id' => $id,
             ':name' => $data['name'] ?? '',
