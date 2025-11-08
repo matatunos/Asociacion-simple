@@ -175,6 +175,7 @@ switch ($page) {
         break;
 
     case 'agenda':
+        // Gestión de agenda de socios - solo admin
         // Solo accesible para admin
         if ($user['role'] !== 'admin') { 
             http_response_code(403); 
@@ -182,6 +183,21 @@ switch ($page) {
             exit; 
         }
         
+        // Crear socio
+        if ($action === 'create' && !empty($_POST['name'])) {
+            Member::create($db, $_POST);
+            header('Location: index.php?page=agenda'); 
+            exit;
+        }
+        
+        // Actualizar socio
+        if ($action === 'update' && !empty($_POST['id'])) {
+            Member::update($db, (int)$_POST['id'], $_POST);
+            header('Location: index.php?page=agenda'); 
+            exit;
+        }
+        
+        // Eliminar socio
         // Acciones CRUD para socios
         if ($action === 'create' && !empty($_POST['name'])) {
             if (strlen($_POST['name']) < 2) {
@@ -219,6 +235,10 @@ switch ($page) {
             exit;
         }
         
+        // Obtener socio a editar si se solicita
+        $editMember = isset($_GET['edit']) ? Member::find($db, (int)$_GET['edit']) : null;
+        
+        // Listar todos los socios
         $editMember = isset($_GET['edit']) ? Member::find($db, (int)$_GET['edit']) : null;
         $members = Member::all($db);
         require __DIR__ . '/../templates/agenda.php';
