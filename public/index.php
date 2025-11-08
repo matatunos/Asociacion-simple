@@ -11,6 +11,8 @@ require_once __DIR__ . '/../src/Auth.php';
 require_once __DIR__ . '/../src/User.php';
 require_once __DIR__ . '/../src/Payment.php';
 require_once __DIR__ . '/../src/Voucher.php';
+require_once __DIR__ . '/../src/Member.php';
+
 
 $db = new Database($config['db']);
 $auth = new Auth($db, $config);
@@ -85,6 +87,57 @@ switch ($page) {
         $vouchers = Voucher::all($db);
         require __DIR__ . '/../templates/vouchers.php';
         break;
+
+
+// ... dentro del switch($page) agrega el case 'agenda' exactamente:
+case 'agenda':
+    // Solo administradores pueden gestionar la agenda
+    if ($user['role'] !== 'admin') { http_response_code(403); echo "Acceso denegado."; exit; }
+    $year = date('Y');
+
+    // Acciones POST
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $action = $_POST['action'] ?? null;
+        if ($action === 'create') {
+            $data = [
+                'name'=>trim($_POST['name'] ?? ''),
+                'email'=>trim($_POST['email'] ?? ''),
+                'phone'=>trim($_POST['phone'] ?? ''),
+                'address'=>trim($_POST['address'] ?? '')
+            ];
+            Member::create($db, $data);
+            header('Location: index.php?page=agenda'); exit;
+        }
+        if ($action === 'update' && !empty($_POST['id'])) {
+            $id = (int)$_POST['id'];
+            $data = [
+                'name'=>trim($_POST['name'] ?? ''),
+                'email'=>trim($_POST['email'] ?? ''),
+                'phone'=>trim($_POST['phone'] ?? ''),
+                'address'=>trim($_POST['address'] ?? '')
+            ];
+            Member::update($db, $id, $data);
+            header('Location: index.php?page=agenda'); exit;
+        }
+        if ($action === 'delete' && !empty($_POST['id'])) {
+            $id = (int)$_POST['id'];
+            Member::delete($db, $id);
+            header('Location: index.php?page=agenda'); exit;
+        }
+        if ($action === 'toggle_payment' && !empty($_POST['id'])) {
+            $id = (int)$_POST['id'];
+            Member::togglePayment($db, $id, $year);
+            header('Location: index.php?page=agenda'); exit;
+        }
+    }
+
+    // GET: lista y posible edición
+    if (isset($_GET['edit'])) {
+        $editMember = Member::find($db, (int)$_GET['edit']);
+    }
+    $members = Member::allWithPaid($db, $year);
+    require __DIR__ . '/../templates/agenda.php';
+    break;
 
     default:
         echo "Página no encontrada.";

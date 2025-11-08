@@ -1,223 +1,73 @@
 <?php
-$title = "Agenda - Listado de Socios";
 $title = "Agenda de Socios";
 ob_start();
+$year = date('Y');
 ?>
-<h2>Agenda de Socios</h2>
-
-<?php if(!empty($error)): ?>
-  <p class="error"><?= htmlspecialchars($error) ?></p>
-<?php endif; ?>
-
-<?php if(isset($editMember) && $editMember): ?>
-<div class="card">
-<h3>Editar Socio</h3>
-<form method="post" action="index.php?page=agenda">
-  <input type="hidden" name="action" value="update">
-  <input type="hidden" name="id" value="<?= $editMember['id'] ?>">
-  
-  <label>
-    Nombre: *
-    <input type="text" name="name" value="<?= htmlspecialchars($editMember['name']) ?>" required>
-  </label>
-  
-  <label>
-    Email:
-    <input type="email" name="email" value="<?= htmlspecialchars($editMember['email'] ?? '') ?>">
-  </label>
-  
-  <label>
-    Teléfono:
-    <input type="text" name="phone" value="<?= htmlspecialchars($editMember['phone'] ?? '') ?>">
-  </label>
-  
-  <label>
-    Dirección:
-    <input type="text" name="address" value="<?= htmlspecialchars($editMember['address'] ?? '') ?>">
-  </label>
-  
-  <label>
-    Ciudad:
-    <input type="text" name="city" value="<?= htmlspecialchars($editMember['city'] ?? '') ?>">
-  </label>
-  
-  <label>
-    Código Postal:
-    <input type="text" name="postal_code" value="<?= htmlspecialchars($editMember['postal_code'] ?? '') ?>">
-  </label>
-  
-  <label>
-    Notas:
-    <textarea name="notes"><?= htmlspecialchars($editMember['notes'] ?? '') ?></textarea>
-  </label>
-  
-  <button type="submit">Actualizar Socio</button>
-  <a href="index.php?page=agenda" class="btn">Cancelar</a>
-</form>
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h2>Agenda de Socios</h2>
+  <a href="#newMember" class="btn btn-success" data-bs-toggle="collapse">Nuevo socio</a>
 </div>
-<?php else: ?>
-<div class="card">
-<h3>Crear Nuevo Socio</h3>
-<form method="post" action="index.php?page=agenda">
-  <input type="hidden" name="action" value="create">
-  
-  <label>
-    Nombre: *
-    <input type="text" name="name" required>
-  </label>
-  
-  <label>
-    Email:
-    <input type="email" name="email">
-  </label>
-  
-  <label>
-    Teléfono:
-    <input type="text" name="phone">
-  </label>
-  
-  <label>
-    Dirección:
-    <input type="text" name="address">
-  </label>
-  
-  <label>
-    Ciudad:
-    <input type="text" name="city">
-  </label>
-  
-  <label>
-    Código Postal:
-    <input type="text" name="postal_code">
-  </label>
-  
-  <label>
-    Notas:
-    <textarea name="notes"></textarea>
-  </label>
-  
-  <button type="submit">Crear Socio</button>
-</form>
-</div>
-<?php endif; ?>
 
-<h3>Lista de Socios</h3>
-<?php if (empty($members)): ?>
-  <p>No hay socios registrados en la agenda.</p>
-<?php else: ?>
-<table>
-  <thead>
-    <tr>
-      <th>ID</th>
-      <th>Nombre</th>
-      <th>Email</th>
-      <th>Teléfono</th>
-      <th>Ciudad</th>
-      <th>Código Postal</th>
-      <th>Notas</th>
-      <th>Acciones</th>
-    </tr>
-  </thead>
-  <tbody>
+<div id="newMember" class="collapse mb-4">
+  <div class="card card-body">
+    <form method="post" action="index.php?page=agenda">
+      <input type="hidden" name="action" value="create">
+      <div class="row g-2">
+        <div class="col-md-6">
+          <input name="name" class="form-control" placeholder="Nombre completo" required>
+        </div>
+        <div class="col-md-6">
+          <input name="email" class="form-control" placeholder="Email (opcional)">
+        </div>
+      </div>
+      <div class="row g-2 mt-2">
+        <div class="col-md-4"><input name="phone" class="form-control" placeholder="Teléfono"></div>
+        <div class="col-md-8"><input name="address" class="form-control" placeholder="Dirección"></div>
+      </div>
+      <div class="mt-3">
+        <button class="btn btn-primary">Crear socio</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<?php if (!empty($members)): ?>
+  <ul class="list-group">
     <?php foreach($members as $m): ?>
-      <tr>
-        <td><?= $m['id'] ?></td>
-        <td><?= htmlspecialchars($m['name']) ?></td>
-        <td><?= htmlspecialchars($m['email'] ?? '-') ?></td>
-        <td><?= htmlspecialchars($m['phone'] ?? '-') ?></td>
-        <td><?= htmlspecialchars($m['city'] ?? '-') ?></td>
-        <td><?= htmlspecialchars($m['postal_code'] ?? '-') ?></td>
-        <td><?= htmlspecialchars(substr($m['notes'] ?? '', 0, 50)) ?><?= strlen($m['notes'] ?? '') > 50 ? '...' : '' ?></td>
-        <td>
-          <a href="index.php?page=agenda&edit=<?= $m['id'] ?>" class="btn btn-small">Editar</a>
-          <form method="post" class="inline-form">
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        <div>
+          <strong><?=htmlspecialchars($m['name'])?></strong>
+          <div class="small text-muted"><?=htmlspecialchars($m['email'] ?? '')?></div>
+        </div>
+
+        <div class="d-flex align-items-center gap-2">
+          <form method="post" action="index.php?page=agenda" class="d-inline">
+            <input type="hidden" name="action" value="toggle_payment">
+            <input type="hidden" name="id" value="<?= $m['id'] ?>">
+            <input type="hidden" name="year" value="<?= $year ?>">
+            <div class="form-check form-switch me-2">
+              <input class="form-check-input" type="checkbox" role="switch" disabled <?= !empty($m['paid']) ? 'checked' : '' ?>>
+              <label class="form-check-label small"><?= !empty($m['paid']) ? 'Al día' : 'Pendiente' ?></label>
+            </div>
+            <button class="btn btn-outline-primary btn-sm" title="Actualizar estado de pago">Actualizar pago</button>
+          </form>
+
+          <a class="btn btn-outline-secondary btn-sm" href="index.php?page=agenda&edit=<?= $m['id'] ?>">Editar</a>
+
+          <form method="post" action="index.php?page=agenda" class="d-inline" onsubmit="return confirm('¿Eliminar socio?')">
             <input type="hidden" name="action" value="delete">
             <input type="hidden" name="id" value="<?= $m['id'] ?>">
-            <button type="submit" class="btn btn-small btn-danger" onclick="return confirm('¿Borrar este socio de la agenda?')">Borrar</button>
+            <button class="btn btn-outline-danger btn-sm">Eliminar</button>
           </form>
-        </td>
-      </tr>
+        </div>
+      </li>
     <?php endforeach; ?>
-  </tbody>
-</table>
+  </ul>
+<?php else: ?>
+  <div class="alert alert-secondary">No hay socios registrados.</div>
 <?php endif; ?>
 
-  <label>Nombre: <input type="text" name="name" value="<?= htmlspecialchars($editMember['name']) ?>" required></label>
-  
-  <label>Email: <input type="email" name="email" value="<?= htmlspecialchars($editMember['email'] ?? '') ?>"></label>
-  
-  <label>Teléfono: <input type="text" name="phone" value="<?= htmlspecialchars($editMember['phone'] ?? '') ?>"></label>
-  
-  <label>Dirección: <input type="text" name="address" value="<?= htmlspecialchars($editMember['address'] ?? '') ?>"></label>
-  
-  <label>Ciudad: <input type="text" name="city" value="<?= htmlspecialchars($editMember['city'] ?? '') ?>"></label>
-  
-  <label>Código Postal: <input type="text" name="postal_code" value="<?= htmlspecialchars($editMember['postal_code'] ?? '') ?>"></label>
-  
-  <label>Notas: <textarea name="notes" rows="3"><?= htmlspecialchars($editMember['notes'] ?? '') ?></textarea></label>
-  
-  <button type="submit">Actualizar</button>
-  <a href="index.php?page=agenda" class="btn">Cancelar</a>
-</form>
-<?php else: ?>
-<h3>Crear Socio</h3>
-<form method="post" action="index.php?page=agenda">
-  <input type="hidden" name="action" value="create">
-  
-  <label>Nombre: <input type="text" name="name" required></label>
-  
-  <label>Email: <input type="email" name="email"></label>
-  
-  <label>Teléfono: <input type="text" name="phone"></label>
-  
-  <label>Dirección: <input type="text" name="address"></label>
-  
-  <label>Ciudad: <input type="text" name="city"></label>
-  
-  <label>Código Postal: <input type="text" name="postal_code"></label>
-  
-  <label>Notas: <textarea name="notes" rows="3"></textarea></label>
-  
-  <button type="submit">Crear Socio</button>
-</form>
-<?php endif; ?>
-
-<h3>Lista de Socios</h3>
-<?php if(empty($members)): ?>
-  <p>No hay socios registrados.</p>
-<?php else: ?>
-<table>
-  <tr>
-    <th>ID</th>
-    <th>Nombre</th>
-    <th>Email</th>
-    <th>Teléfono</th>
-    <th>Ciudad</th>
-    <th>Código Postal</th>
-    <th>Notas</th>
-    <th>Acciones</th>
-  </tr>
-  <?php foreach($members as $m): ?>
-    <tr>
-      <td><?= $m['id'] ?></td>
-      <td><?= htmlspecialchars($m['name']) ?></td>
-      <td><?= htmlspecialchars($m['email'] ?? '') ?></td>
-      <td><?= htmlspecialchars($m['phone'] ?? '') ?></td>
-      <td><?= htmlspecialchars($m['city'] ?? '') ?></td>
-      <td><?= htmlspecialchars($m['postal_code'] ?? '') ?></td>
-      <td><?= htmlspecialchars(mb_substr($m['notes'] ?? '', 0, 50)) ?><?= strlen($m['notes'] ?? '') > 50 ? '...' : '' ?></td>
-      <td>
-        <a href="index.php?page=agenda&edit=<?= $m['id'] ?>" class="btn btn-small">Editar</a>
-        <form method="post" style="display:inline">
-          <input type="hidden" name="action" value="delete">
-          <input type="hidden" name="id" value="<?= $m['id'] ?>">
-          <button type="submit" class="btn-danger btn-small" onclick="return confirm('¿Borrar socio?')">Borrar</button>
-        </form>
-      </td>
-    </tr>
-  <?php endforeach; ?>
-</table>
-<?php endif; ?>
 <?php
 $content = ob_get_clean();
 require __DIR__ . '/layout.php';
+?>
